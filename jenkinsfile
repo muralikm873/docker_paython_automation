@@ -1,30 +1,31 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_IMAGE = 'docker_paython_automation:latest' // Replace with your preferred image name
+    }
     stages {
         stage('Clone Repository') {
             steps {
                 git url: 'https://github.com/muralikm873/docker_paython_automation.git', branch: 'main'
             }
         }
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    if (isUnix()) {
-                        sh 'pip install -r requirements.txt'
-                    } else {
-                        bat 'pip install -r requirements.txt'
-                    }
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
-        stage('Run Automation Script') {
+        stage('Run Docker Container') {
             steps {
                 script {
-                    if (isUnix()) {
-                        sh 'python docker_automation.py' // Replace with the actual script to run
-                    } else {
-                        bat 'docker_automation.py' // Replace with the actual script to run
-                    }
+                    sh '''
+                    docker run --rm \
+                    -v $(pwd):/app \
+                    -w /app \
+                    ${DOCKER_IMAGE} \
+                    sh -c "pip install -r requirements.txt && python docker_automation.py"
+                    '''
                 }
             }
         }
