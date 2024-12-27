@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/muralikm873/docker_paython_automation.git', branch: 'main'
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'pip install -r requirements.txt'
+                    } else {
+                        bat 'pip install -r requirements.txt'
+                    }
+                }
+            }
+        }
+        stage('Run Automation Script') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'python automation_script.py' // Replace with the actual script to run
+                    } else {
+                        bat 'python automation_script.py' // Replace with the actual script to run
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Job completed successfully.'
+        }
+        failure {
+            echo 'Job failed. Check the logs for details.'
+        }
+    }
+}
