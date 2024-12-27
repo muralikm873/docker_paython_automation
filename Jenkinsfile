@@ -21,7 +21,7 @@ pipeline {
                 script {
                     sh '''
                     docker run --rm \
-                    -v $(pwd):/ \
+                    -v $(pwd):/app \
                     -w /app \
                     ${DOCKER_IMAGE} \
                     sh -c "pip install -r requirements.txt && python docker_automation.py"
