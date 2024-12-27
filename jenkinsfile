@@ -21,9 +21,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'python automation_script.py' // Replace with the actual script to run
+                        sh 'python docker_automation.py' // Replace with the actual script to run
                     } else {
-                        bat 'python automation_script.py' // Replace with the actual script to run
+                        bat 'docker_automation.py' // Replace with the actual script to run
                     }
                 }
             }
