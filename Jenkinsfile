@@ -1,41 +1,48 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_IMAGE = 'docker_paython_automation:latest' // Replace with your preferred image name
-    }
+
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/muralikm873/docker_paython_automation.git', branch: 'main'
+                // Clone the GitHub repository containing the Python script
+                git branch: 'main', url: 'https://github.com/muralikm873/docker_paython_automation.git'
             }
         }
-        stage('Build Docker Image') {
+        stage('Setup Virtual Environment') {
             steps {
-                script {
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
-                }
+                // Create and activate a Python virtual environment
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install docker psutil
+                '''
             }
         }
-        stage('Run Docker Container') {
+
+        stage('Run Python Script') {
             steps {
-                script {
-                    sh '''
-                    docker run --rm \
-                    -v $(pwd):/app \
-                    -w /app \
-                    ${DOCKER_IMAGE} \
-                    sh -c "pip install -r requirements.txt && python docker_automation.py"
-                    '''
-                }
+                // Run the Python script using the virtual environment
+                sh '''
+                . venv/bin/activate
+                python docker_automation.py
+                '''
             }
         }
     }
+
     post {
-        success {
-            echo 'Job completed successfully.'
+        always {
+            // Cleanup workspace
+            cleanWs()
         }
         failure {
-            echo 'Job failed. Check the logs for details.'
+            // Notify on failure (optional)
+            echo 'Build failed! Check the logs for details.'
+        }
+        success {
+            // Notify on success (optional)
+            echo 'Build succeeded!'
         }
     }
 }
